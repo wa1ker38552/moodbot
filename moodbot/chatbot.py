@@ -1,6 +1,6 @@
 from nltk.tokenize import word_tokenize
 from datetime import datetime
-from data_mine import message
+from moodbot import message
 import moodbot
 import random
 import time
