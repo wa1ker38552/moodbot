@@ -12,6 +12,7 @@ Basic Example:
 ```py
 from moodbot import discord_trainer
 from moodbot import chatbot
+import json
 
 trainer = discord_trainer(token)
 raw_data = trainer.query_channel(CHANNEL_ID, limit=10000)
