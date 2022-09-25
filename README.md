@@ -7,7 +7,9 @@ MoodBot works by finding sentence similarities using Cosine Similarity. The sent
 
 MoodBot when imported, has no pre-trained data. To train MoodBot, you can use it's training functions to train data from .json files. MoodBot finds conversations within the raw message files by finding time proximity between messages and checking for repeat message authors. After a conversation with one input statement and one output statement is created, MoodBot can find the best matching input statement to an output statement using self.response.
 
-Basic Example:
+MoodBot can currently train off Discord and Google Chat. To train either one, use `moodbot.discord_trainer` or `moodbot.gchat_trainer`. Some there is a possibilty that users don't have Google workspace, data from Google Chat has to be manually pasted into a text file which the trainer reads and parses into json. Examples of file format are in `/examples`
+
+Basic Example (Discord):
 
 ```py
 from moodbot import discord_trainer
@@ -32,4 +34,17 @@ client = chatbot()
 client.train('data/CHANNEL_ID')
 
 print(client.response('Hello!').content)
+```
+
+Basic Example (gchat)
+```py
+import moodbot
+
+client = moodbot.chatbot()
+
+trainer = moodbot.googlechat_trainer('data.txt')
+# upload data to data.json
+trainer.format_data('data.json')
+
+client.train('data.json', remove=[''])
 ```
