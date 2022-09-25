@@ -144,7 +144,7 @@ class chatbot:
                 possible_points.append(i)
 
             i += 1
-        print(len(possible_points))
+
         if mode == 'random':
             # random input from range
             # find moods within range
