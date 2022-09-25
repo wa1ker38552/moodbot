@@ -55,7 +55,8 @@ import nltk
 nltk.download('punkt')
 
 client = moodbot.chatbot()
-client.train('data/rms-general.json', remove=['@', 'https://', ''], threshold=60)
-client.train('data/scriptly-studios-general.json', remove=['@', 'https://', ''], threshold=60)
+
+for file in os.listdir('data/'):
+    client.train(f'data/{file}', remove=['<@', 'https://', ''])
 
 app.run(host='0.0.0.0', port=8080)
