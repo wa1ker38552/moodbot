@@ -52,8 +52,8 @@ class chatbot:
 
                     if (input-output).total_seconds() < 60:
                         self.conversations.append({
-                            'input': item.content,
-                            'output': self.memory[i+1].content,
+                            'output': item.content,
+                            'input': self.memory[i+1].content,
                             'delta': (input-output).total_seconds()
                         })
             except IndexError:
@@ -88,25 +88,23 @@ class chatbot:
         X_list = input
         Y_list = word_tokenize(output)
 
-        # sw contains the list of stopwords
-        l1 = []
-        l2 = []
+        l1, l2 = [], []
 
         # remove stop words from the string
         X_set = {w for w in X_list if not w in self.stop_words}
         Y_set = {w for w in Y_list if not w in self.stop_words}
 
         # form a set containing keywords of both strings
+        c = 0
         rvector = X_set.union(Y_set)
-        for w in rvector:
+        for x, w in enumerate(rvector):
             if w in X_set:l1.append(1)  # create a vector
             else:l1.append(0)
             if w in Y_set:l2.append(1)
             else:l2.append(0)
 
-        c = 0
-        for i in range(len(rvector)):
-            c += l1[i] * l2[i]
+            c += l1[x] * l2[x]
+
         try:
             cosine = c / float((sum(l1)*sum(l2))**0.5)
         except ZeroDivisionError:
@@ -144,7 +142,6 @@ class chatbot:
                 possible_points.append(i)
 
             i += 1
-
         if mode == 'random':
             # random input from range
             # find moods within range
