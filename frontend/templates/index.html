@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand">
+  <link rel="stylesheet" href="/static/main.css">
+  </head>
+  <body>
+    <div class="header">
+      <!-- icon -->
+      <a class="home-icon" href="/">
+        <img alt="home" src="https://cdn.discordapp.com/attachments/898324157786374154/1023341326760149112/home.png" width="30" height="30">
+      </a>
+      <a class="github-icon" href="https://github.com/wa1ker38552/moodbot">
+        <img alt="github" src="https://media.discordapp.net/attachments/898324157786374154/1023359660281049108/github.png?width=422&height=422" width="30" height="30">
+      </a>
+      <a class="api-icon" href="/api">
+        <img alt="api" src="https://cdn2.iconfinder.com/data/icons/font-awesome/1792/code-512.png" width="30" height="30">
+      </a>
+      <a class="download-icon" href="/download">
+        <img alt="download" src="https://iili.io/s5FIig.png" width="30" height="30">
+      </a>
+
+      <!-- text -->
+      <center>
+        <span class="title"> Mood Adaptive Chatbot </span>
+      </center>
+    </div>
+    <center>
+      <div class="sub-title"> What is it? </div>
+      <div class="content">
+        MoodBot is a mood adaptive chatbot that calculates moods from an input statement and generates an response. MoodBot was created as a project for Los Altos Hacks VI. 
+      </div>
+      <div class="sub-title"> How it Works </div>
+      <div class="content">
+        MoodBot works by noticing sentence similarities through cosine similarity. The sentenced are tokenized using NLTK to plug into the cosine formula. We then compared already trained input and output statements agianst each other to find matches that are within a specified threshold. The code in large is in two categories; the mood analysis and chatbot. These two were developed seperately, so you might experience some roughness in the integration of the two functions. In short, the mood analyzer part, like it speaks with its name, analyzes the data in the category of moods - we have categorized the emotion only into two axis, happyness-sadness and anger/suprise-fear. Using this info, the chatbot finds the most similar response that it has been trained with, and returns the value. Due to this, the chatbot is unable to return values for statments that are far off of the data set which it trained on, and is also influenced gravely by the data set it has trained in.
+      </div>
+      <div class="sub-title"> Mood Analyzer </div>
+      <div class="content"> 
+        The mood analyzer works easier than you might think. Based off of about 100 initial base sentences(initial statements and responses), the mood analyzer is able to train using input/output data. Here, not only is the emotion for the given statements defined, but the statements compared are also re-defined accordingly to the output created by the training function. The way the output list is formatted is [happyness-sadness, anger/suprise-fear, accuracy], in which happyness is 1, sadness is 0, anger/suprise is 1, fear is 0, and also, the higher the accuracy(integer value), the more it has been trained relative to other outputs. Also with the genInitResponse function, it is also able to grab the response most likely to be used for your input, and return a reply for the given statement.
+      </div>
+      <div class="sub-title"> Training </div>
+      <div class="content"> 
+        MoodBot when imported, has no pre-trained data. To train MoodBot, you can use it's training functions to train data from .json files. MoodBot finds conversations within the raw message files by finding time proximity between messages and checking for repeat message authors. After a conversation with one input statement and one output statement is created, MoodBot can find the best matching input statement to an output statement using self.response. Users can use pre-written trainer classes to train parse and format message data from Discord and Google Chat.
+      </div>
+    </center>
+  </body>
+</html>
