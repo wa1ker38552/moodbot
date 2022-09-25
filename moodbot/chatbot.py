@@ -59,6 +59,14 @@ class chatbot:
                 # can't count last message
                 pass
 
+    def manual_train(self, input, output):
+        # only train conversations not raw memory
+        self.conversations.append({
+            'input': input,
+            'output': output,
+            'delta': 0.0
+        })
+
     def train_responses(self):
         # check if there are responses to train
         if len(self.responses) > 1:
@@ -74,27 +82,25 @@ class chatbot:
                 # indexed response out of range
                 pass
 
-    def calculate_cosine(self, data_point, decimal, count, input):
+    def calculate_cosine(self, data_point, decimal, input):
         # compare input statements within conversations dataset
         output = data_point['input']
 
         l1, l2 = [], []
 
         # tokenize words if they're not a stop word
-        x_vector = {word for word in word_tokenize(input) if word not in self.stop_words}
+        x_vector = {word for word in input if word not in self.stop_words}
         y_vector = {word for word in word_tokenize(output) if word not in self.stop_words}
 
+        c = 0
         rvector = x_vector.union(y_vector)
-        for w in rvector:
+        for i, w in enumerate(rvector):
             if w in x_vector: l1.append(1)
-            else:l1.append(0)
+            else: l1.append(0)
 
             if w in y_vector: l2.append(1)
-            else:l2.append(0)
+            else: l2.append(0)
 
-        c = 0
-        # calculate cosine similarity
-        for i in range(len(rvector)):
             c += (l1[i] * l2[i])
 
         # unable to find similarity
@@ -104,28 +110,32 @@ class chatbot:
             cosine = 0.0
 
         self.similarity_data.append(round(cosine, decimal))
-        if count == len(self.conversations)-1: self.unready[0] = False
 
     def response(self, input, search_range=10, mode='random', decimal=3):
         start = time.time()
+
+        # declared here since this resets after every response
         self.similarity_data = []
-        self.unready = [True]
 
-        for i, data_point in enumerate(self.conversations):
-            self.calculate_cosine(data_point, decimal, i, input)
-
-        while self.unready[0]: pass
+        tokenized_input = word_tokenize(input)
+        for data_point in self.conversations:
+            self.calculate_cosine(data_point, decimal, tokenized_input)
 
         possible_points = []
-        for i, point in enumerate(self.similarity_data):
-            # find proximity within similarity data
-            r1 = float(max(self.similarity_data))-(0.01*search_range)
-            r2 = float(max(self.similarity_data))+(0.01*search_range)
+        maxed = max(self.similarity_data)
 
+        # find proximity within similarity data
+        r1 = float(maxed) - (0.01 * search_range)
+        r2 = float(maxed) + (0.01 * search_range)
+
+        # using a counter variable faster than enumerating self.similarity_data
+        i = 0
+        for point in self.similarity_data:
             # generate float range between max value and thresholds
             # python doesn't allow for range(float, float)
             if point in [x/(10**decimal) for x in range(int(r1*(10**decimal)), int(r2*(10**decimal))+1)]:
                 possible_points.append(i)
+            i += 1
 
         if mode == 'random':
             # random input from range
@@ -134,15 +144,15 @@ class chatbot:
 
             # generate raw range min-max
             raw = [x/(10**decimal) for x in range(int(r1*(10**decimal)), int(r2*(10**decimal))+1)]
-            response = moodbot.output(closest_input, closest_output, [min(raw), max(self.similarity_data)], time.time() - start)
+            response = moodbot.output(closest_input, closest_output, [min(raw), maxed], time.time() - start)
 
         elif mode == 'match':
             # exact closest input
 
-            closest_input = self.conversations[self.similarity_data.index(max(self.similarity_data))]['input']
-            closest_output = self.conversations[self.similarity_data.index(max(self.similarity_data))]['output']
+            closest_input = self.conversations[self.similarity_data.index(maxed)]['input']
+            closest_output = self.conversations[self.similarity_data.index(maxed)]['output']
 
-            response = moodbot.output(closest_input, closest_output, max(self.similarity_data), time.time() - start)
+            response = moodbot.output(closest_input, closest_output, maxed, time.time() - start)
 
         # train current conversation
         self.responses.append({
