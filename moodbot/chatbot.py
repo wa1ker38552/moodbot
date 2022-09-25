@@ -47,6 +47,7 @@ class chatbot:
                     od = self.memory[i+1].timestamp.split('+')[0].split('T')[0]
                     ot = self.memory[i+1].timestamp.split('+')[0].split('T')[1]
 
+
                     output = datetime.strptime(f'{od} {ot}', '%Y-%m-%d %H:%M:%S')
 
                     if (input-output).total_seconds() < 60:
@@ -82,30 +83,32 @@ class chatbot:
                 # indexed response out of range
                 pass
 
-    def calculate_cosine(self, data_point, decimal, input):
+    def calculate_cosine(self, output, decimal, input):
         # compare input statements within conversations dataset
-        output = data_point['input']
+        X_list = input
+        Y_list = word_tokenize(output)
 
-        l1, l2 = [], []
+        # sw contains the list of stopwords
+        l1 = []
+        l2 = []
 
-        # tokenize words if they're not a stop word
-        x_vector = {word for word in input if word not in self.stop_words}
-        y_vector = {word for word in word_tokenize(output) if word not in self.stop_words}
+        # remove stop words from the string
+        X_set = {w for w in X_list if not w in self.stop_words}
+        Y_set = {w for w in Y_list if not w in self.stop_words}
+
+        # form a set containing keywords of both strings
+        rvector = X_set.union(Y_set)
+        for w in rvector:
+            if w in X_set:l1.append(1)  # create a vector
+            else:l1.append(0)
+            if w in Y_set:l2.append(1)
+            else:l2.append(0)
 
         c = 0
-        rvector = x_vector.union(y_vector)
-        for i, w in enumerate(rvector):
-            if w in x_vector: l1.append(1)
-            else: l1.append(0)
-
-            if w in y_vector: l2.append(1)
-            else: l2.append(0)
-
-            c += (l1[i] * l2[i])
-
-        # unable to find similarity
+        for i in range(len(rvector)):
+            c += l1[i] * l2[i]
         try:
-            cosine = c / float((sum(l1) * sum(l2)) ** 0.5)
+            cosine = c / float((sum(l1)*sum(l2))**0.5)
         except ZeroDivisionError:
             cosine = 0.0
 
@@ -113,13 +116,17 @@ class chatbot:
 
     def response(self, input, search_range=10, mode='random', decimal=3):
         start = time.time()
+        mood_corpus = moodbot.FindMood()
+
+        # find mood for possible input
+        possible_input = mood_corpus.genInitResponse(input, True, ifResponse=False)
 
         # declared here since this resets after every response
         self.similarity_data = []
+        tokenized = word_tokenize(input)
 
-        tokenized_input = word_tokenize(input)
         for data_point in self.conversations:
-            self.calculate_cosine(data_point, decimal, tokenized_input)
+            self.calculate_cosine(data_point['input'], decimal, tokenized)
 
         possible_points = []
         maxed = max(self.similarity_data)
@@ -135,24 +142,35 @@ class chatbot:
             # python doesn't allow for range(float, float)
             if point in [x/(10**decimal) for x in range(int(r1*(10**decimal)), int(r2*(10**decimal))+1)]:
                 possible_points.append(i)
-            i += 1
 
+            i += 1
+        print(len(possible_points))
         if mode == 'random':
             # random input from range
-            closest_input = self.conversations[random.choice(possible_points)]['input']
-            closest_output = self.conversations[random.choice(possible_points)]['output']
+            # find moods within range
+
+            while True:
+                seed = random.choice(possible_points)
+                possible_output = mood_corpus.genInitResponse(self.conversations[seed]['input'], True, ifResponse=False)
+                if abs(possible_input[0] - possible_output[0]) >= 0 or abs(possible_input[1] - possible_output[1]) >= 0:
+                    break
+
+            closest_input = self.conversations[seed]['input']
+            closest_output = self.conversations[seed]['output']
 
             # generate raw range min-max
             raw = [x/(10**decimal) for x in range(int(r1*(10**decimal)), int(r2*(10**decimal))+1)]
-            response = moodbot.output(closest_input, closest_output, [min(raw), maxed], time.time() - start)
+            response = moodbot.output(closest_input, closest_output, [min(raw), maxed], time.time() - start, possible_output)
 
         elif mode == 'match':
             # exact closest input
+            # generate emotion
+            possible_output = mood_corpus.genInitResponse(self.conversations[self.similarity_data.index(maxed)]['input'], True, ifResponse=False)
 
             closest_input = self.conversations[self.similarity_data.index(maxed)]['input']
             closest_output = self.conversations[self.similarity_data.index(maxed)]['output']
 
-            response = moodbot.output(closest_input, closest_output, maxed, time.time() - start)
+            response = moodbot.output(closest_input, closest_output, maxed, time.time() - start, possible_output)
 
         # train current conversation
         self.responses.append({
