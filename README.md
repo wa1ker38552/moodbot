@@ -32,5 +32,3 @@ client.train('data/CHANNEL_ID')
 
 print(client.response('Hello!').content)
 ```
-
-https://lahvi.cadenchau.repl.co/
