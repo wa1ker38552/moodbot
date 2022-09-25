@@ -1,0 +1,92 @@
+body {
+  margin: 0px;
+  font-family: "Quicksand", sans-serif;
+  overflow: scroll;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 0; 
+  background: transparent;
+}
+
+.title {
+  color: #FFFFFF;
+  font-size: 5.5vw;
+  line-height: 40vh;f
+}
+
+.sub-title {
+  color: #000000;
+  font-size: 3vw;
+  font-weight: bold;
+  margin-top: 20px;
+  padding: 5px;
+}
+
+.content {
+  color: #000000;
+  font-size: 2vw;
+  margin: 10px;
+  margin-bottom: 20px;
+  padding: 5px
+}
+
+.header {
+  width: 100vw;
+  height: 40vh;
+  background-image: linear-gradient(to right, #6c71fe, #fe48ddFF);
+}
+
+.home-icon {
+  position: absolute;
+  left: 10px;
+  top: 7px;
+  filter: invert(1);
+}
+
+.github-icon {
+  position: absolute;
+  left: 45px;
+  top: 9px;
+}
+
+.api-icon {
+  position: absolute;
+  left: 80px;
+  top: 8px;
+  filter: invert(1);
+}
+
+.download-icon {
+  position: absolute;
+  left: 115px;
+  top: 10px;
+  filter: invert(1);
+}
+
+.code-box {
+  font-size: 20px;
+  border: 1px;
+  border-color: #dedede;
+  background: #dedede;
+  border-style: solid;
+  padding: 5px;
+  margin: 10px;
+}
+
+table, th, td {
+  border: 2px;
+  border-color: #ffffff;
+  background: #dedede;
+  border-style: solid;
+  padding: 10px;
+  margin: 10px;
+  border-collapse: collapse;
+}
+
+a {
+  color: #000000;
+  font-size: 30px;
+  margin: 10px;
+}
