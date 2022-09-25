@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand">
+  <link rel="stylesheet" href="/static/main.css">
+  </head>
+  <body>
+    <div class="header">
+      <!-- icon -->
+      <a class="home-icon" href="/">
+        <img alt="home" src="https://cdn.discordapp.com/attachments/898324157786374154/1023341326760149112/home.png" width="30" height="30">
+      </a>
+      <a class="github-icon" href="https://github.com/wa1ker38552/moodbot">
+        <img alt="github" src="https://media.discordapp.net/attachments/898324157786374154/1023359660281049108/github.png?width=422&height=422" width="30" height="30">
+      </a>
+      <a class="api-icon" href="/api">
+        <img alt="api" src="https://cdn2.iconfinder.com/data/icons/font-awesome/1792/code-512.png" width="30" height="30">
+      </a>
+      <a class="download-icon" href="/download">
+        <img alt="download" src="https://iili.io/s5FIig.png" width="30" height="30">
+      </a>
+
+      <!-- text -->
+      <center>
+        <span class="title"> API </span>
+      </center>
+    </div>
+    <div class="content">
+      The endpoint for fetching data is <code>/api/</code>. The API can be used to fetch responses from MoodBot if you're not using Python.
+    </div>
+    <div class="sub-title"><code> /api/response </code></div>
+    <div class="content">
+      <code> /api/response </code> fetches a response from a MoodBot client pretrained with <b>{{ data }}</b> messages (and counting!). Returns in a json format.
+      <br><br>
+      <b> Parameters: </b>
+      <table>
+        <tr>
+          <td> query </td>
+          <td> search_range </td>
+          <td> mode </td>
+          <td> decimal </td>
+        </tr>
+        <tr>
+          <td> The input statement fed into MoodBot </td>
+          <td> The range which you want to search similar statements from (0, 100) </td>
+          <td> The mode which the algorithm searches in, random, which takes a random within a range or match, which finds the best match. </td>
+          <td> The decimal places cosine is rounded to. </td>
+        </tr>
+      </table>
+      <b> Example: </b>
+      <br>
+      <code> /api/response?query="hi there" </code>
+      <br>
+      <div class="code-box">
+        <code><pre>
+{
+  "content": "hi",
+  "match": "hi",
+  "confidence": [0.97,1.0],
+  "time": 39.21736931800842
+}
+        </pre></code>
+      </div>
+      <div class="sub-title"> Docs </div>
+      <div class="content">
+        <b> Getting Started </b>
+        <br>
+        Use <span class="code-box"><code> pip install moodbot </code></span> to install MoodBot. Since <span class="code-box"><code> nltk.tokenize </code></span> requires punkt, you have to install punkt before writing code using <span class="code-box"><code> nltk.download('punkt') </code></span>
+        <br><br>
+        <b> Initializing the bot </b>
+        <br>
+        To intialize the bot, you can call <span class="code-box"><code> moodbot.chatbot() </code></span>. On initialization, the bot contains <b>no</b> pre-trained data.
+        <div class="code-box">
+          <code><pre>
+import moodbot
+import nltk
+
+nltk.download('punkt')
+client = moodbot.chatbot()
+          </pre></code>
+        </div>
+      </div>
+      <div class="sub-title"> Training </div>
+      <div class="content">
+        Since MoodBot starts off with no training data, you can train it using the built-in Discord trainer or Google Chat trainer. If you want to use a different dataset, just include the filepath to the dataset. The data should be in the following format:
+        <div class="code-box">
+          <code><pre>
+[
+  {
+    'content': 'a message',
+    'author': 'author identifier',
+    'timestamp': '%Y-%m-%dT%H:%M:%S'
+  } 
+]
+          </pre></code>
+        </div>
+        To train using the discord trainer, import <span class="code-box"><code> moodbot.discord_trainer </code></span>. After that, to train discord messages, all you need to specify is your authorization token, channel id, and limit.
+        <div class="code-box">
+          <code><pre>
+from moodbot import discord_trainer
+
+trainer = discord_trainer('TOKEN')
+data = trainer.query_channel('CHANNEL_ID', limit=10000)
+          </pre></code>
+        </div>
+          The trainer returns <moodbot.message> objects which contain the following attributes, content, author_id, and timestamp. The trainer does not convert the data into json for you so you would need to process it yourself.
+        <div class="code-box">
+          <code><pre>
+data = []
+for message in raw_data:
+  data.append({
+      'content': message.content,
+      'author': message.author_id,
+      'timestamp': message.timestamp,
+  })
+
+# load into json
+with open(f'data/CHANNEL_ID.json', 'w') as file:
+  file.write(json.dumps(data, indent=4))            
+          </pre></code>
+        </div>
+        Once the data is in json files, you can train them into conversations using the chatbot client. The chatbot client will attempt to find conversations within the raw messages by finding time differences between messages and checking for messages by the same author.
+        <div class="code-box">
+          <code><pre>
+client = moodbot.chatbot()
+client.train('PATH_TO_JSON')            
+          </pre></code>
+        </div>
+        The train function has several parameters. You can specify what words or characters to skip over using the remove parameter. You can also specify the most amount of time between messages (in seconds) before the trainer disregards the message.
+        <div class="sub-title"> Memory </div>
+        MoodBot trains on conversations that you have with it as it runs. To save its internal memory, write <span class="code-box"><code> self.raw_messages </code></span> to a json file. MoodBot's conversation data can also be accessed using <span class="code-box"><code> self.conversations </code></span> You can also access the conversations that you have inputted into it's memory using <span class="code-box"><code> self.responses </code></span>
+  </body>
+</html>
