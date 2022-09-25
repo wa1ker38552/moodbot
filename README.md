@@ -1,5 +1,5 @@
 # moodbot
-
+```pip install moodbot```
 
 MoodBot is a mood adaptive chatbot that calculates moods from an input statement and generates an response. MoodBot was created as a project for Los Altos Hacks VI.
 
