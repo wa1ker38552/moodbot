@@ -13,7 +13,7 @@ Basic Example:
 from moodbot import discord_trainer
 from moodbot import chatbot
 
-trainer = discord_data(token)
+trainer = discord_trainer(token)
 raw_data = trainer.query_channel(CHANNEL_ID, limit=10000)
 data = []
 for message in raw_data:
